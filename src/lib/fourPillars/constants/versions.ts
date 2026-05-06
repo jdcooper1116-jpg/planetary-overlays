@@ -1,0 +1,10 @@
+export const MIRROR_VERSION = '1.0.0';
+export const OVERLAY_VERSION = '1.0.0';
+export const SYMBOLIC_VERSION = '1.0.0';
+export const RULE_VERSION = '1.0.0';
+export const FORECAST_METHOD_VERSION = '1.0.0';
+export const SCHEDULE_VERSION = '1.0.0';
+export const EPHEMERIS_VERSION = 'astronomy-engine-2.x';
+export const COMPUTATION_VERSION = '1.0.0';
+export const ZODIAC_MODE = 'tropical';
+export const ASPECT_ORB_RULE_SET = 'phase1-none'; // no aspects computed in Phase 1

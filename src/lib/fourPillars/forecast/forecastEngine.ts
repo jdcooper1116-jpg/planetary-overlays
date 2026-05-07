@@ -23,6 +23,8 @@ type HypothesisForForecast = {
   evidence_count_supporting?: number;
   evidence_count_contradicting?: number;
   support_rate?: number | null;
+  auto_generated?: boolean;
+  forecast_approved?: boolean;
 };
 
 // Minimum thresholds for a hypothesis to contribute to a forecast.
@@ -97,10 +99,12 @@ export async function refreshForecasts(params: {
       .where('status', 'in', ['testing', 'moderate_support', 'strong_support'])
       .get();
 
-    const hypotheses: HypothesisForForecast[] = hypSnap.docs.map((d) => {
-      const data = d.data() as Omit<HypothesisForForecast, 'id'>;
-      return { id: d.id, ...data };
-    });
+    const hypotheses: HypothesisForForecast[] = hypSnap.docs
+      .map((d) => {
+        const data = d.data() as Omit<HypothesisForForecast, 'id'>;
+        return { id: d.id, ...data };
+      })
+      .filter((h) => !h.auto_generated || h.forecast_approved === true);
 
     // 3. Filter to hypotheses that trigger on today's context AND meet evidence thresholds
     const triggered: Array<{

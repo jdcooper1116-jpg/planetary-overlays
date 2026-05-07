@@ -9,12 +9,12 @@ export const revalidate = 30;
 const RESULT_OPTIONS = ['support', 'contradiction', 'neutral', 'inconclusive'];
 
 interface PageProps {
-  searchParams: {
+  searchParams: Promise<{
     hypothesis_id?: string;
     result?: string;
     date?: string;
     label?: string;
-  };
+  }>;
 }
 
 // Result summary counts
@@ -45,12 +45,13 @@ function ResultSummary({ evidence }: { evidence: Record<string, unknown>[] }) {
 }
 
 export default async function EvidencePage({ searchParams }: PageProps) {
+  const sp = await searchParams;
   const [evidence, hypotheses] = await Promise.all([
     readEvidence({
-      hypothesis_id: searchParams.hypothesis_id,
-      result: searchParams.result,
-      date: searchParams.date,
-      label: searchParams.label,
+      hypothesis_id: sp.hypothesis_id,
+      result: sp.result,
+      date: sp.date,
+      label: sp.label,
     }),
     readHypotheses(),
   ]);

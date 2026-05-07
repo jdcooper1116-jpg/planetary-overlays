@@ -37,28 +37,69 @@ export async function readCandidates(filter: CandidateFilter = {}): Promise<Cand
 export async function readCandidateById(candidateId: string): Promise<CandidateDoc | null> {
   const db = getAdminDb();
 
-  if (!candidateId || !candidateId.trim()) return null;
+  const raw = String(candidateId ?? '').trim();
+  if (!raw) return null;
 
-  const direct = await db.collection('auto_hypothesis_queue').doc(candidateId).get();
-  if (direct.exists) {
-    return {
-      id: direct.id,
-      ...(serializeDoc(direct.data()!) as Record<string, unknown>),
-    };
+  let decoded = raw;
+  try {
+    decoded = decodeURIComponent(raw);
+  } catch {
+    decoded = raw;
   }
 
-  const byField = await db
+  const idsToTry = Array.from(new Set([raw, decoded].filter(Boolean)));
+
+  // 1. Direct document id lookup
+  for (const id of idsToTry) {
+    const direct = await db.collection('auto_hypothesis_queue').doc(id).get();
+    if (direct.exists) {
+      return {
+        id: direct.id,
+        ...(serializeDoc(direct.data()!) as Record<string, unknown>),
+      };
+    }
+  }
+
+  // 2. Lookup by candidate_id or registry_id fields
+  for (const field of ['candidate_id', 'registry_id']) {
+    for (const id of idsToTry) {
+      const snap = await db
+        .collection('auto_hypothesis_queue')
+        .where(field, '==', id)
+        .limit(1)
+        .get();
+
+      if (!snap.empty) {
+        const d = snap.docs[0];
+        return {
+          id: d.id,
+          ...(serializeDoc(d.data()) as Record<string, unknown>),
+        };
+      }
+    }
+  }
+
+  // 3. Final fallback: scan pilot docs and match any common identifier
+  const allSnap = await db
     .collection('auto_hypothesis_queue')
-    .where('candidate_id', '==', candidateId)
-    .limit(1)
+    .where('game_id', '==', 'ny_pick3')
     .get();
 
-  if (!byField.empty) {
-    const d = byField.docs[0];
-    return {
+  for (const d of allSnap.docs) {
+    const row: CandidateDoc = {
       id: d.id,
       ...(serializeDoc(d.data()) as Record<string, unknown>),
     };
+
+    const possibleIds = new Set([
+      String(row.id ?? ''),
+      String(row.candidate_id ?? ''),
+      String(row.registry_id ?? ''),
+    ]);
+
+    if (idsToTry.some((id) => possibleIds.has(id))) {
+      return row;
+    }
   }
 
   return null;

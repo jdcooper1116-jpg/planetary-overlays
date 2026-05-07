@@ -27,7 +27,8 @@ const NAV_GROUPS = [
   {
     label: 'Phase 4',
     items: [
-      { href: '/phase4/promotion', label: '🚀 Promotion Engine' },
+      { href: '/phase4/promotion', label: '🚀 Promotion Pipeline' },
+      { href: '/phase4/review-queue', label: '🔎 Review Queue' },
       { href: '/phase4/observations', label: '👁 Observations' },
       { href: '/phase4/candidates', label: '🧪 Candidates' },
       { href: '/phase4/validation-runs', label: '📈 Validation Runs' },
@@ -57,7 +58,11 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         <nav className="flex-1 py-2 overflow-y-auto">
           {NAV_GROUPS.map((group, gi) => (
             <div key={group.label}>
-              <div className={`px-4 pb-1 text-xs text-gray-700 font-mono uppercase tracking-widest ${gi > 0 ? 'pt-4 border-t border-gray-800/60 mt-1' : 'pt-3'}`}>
+              <div
+                className={`px-4 pb-1 text-xs text-gray-700 font-mono uppercase tracking-widest ${
+                  gi > 0 ? 'pt-4 border-t border-gray-800/60 mt-1' : 'pt-3'
+                }`}
+              >
                 {group.label}
               </div>
               {group.items.map((item) => (
@@ -80,7 +85,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         <div className="px-4 py-4 border-t border-gray-800 text-xs text-gray-700 font-mono leading-relaxed">
           planetary-overlays
           <br />
-          p2·p3·p4 · read-only
+          p2·p3·p4·p4.5
         </div>
       </aside>
 

@@ -11,14 +11,19 @@ const ZODIAC_SIGNS = [
 ];
 
 interface PageProps {
-  searchParams: { date?: string; label?: string; moon_sign?: string };
+  searchParams: Promise<{
+    date?: string;
+    label?: string;
+    moon_sign?: string;
+  }>;
 }
 
 export default async function OverlaysPage({ searchParams }: PageProps) {
+  const sp = await searchParams;
   const overlays = await readOverlays({
-    date: searchParams.date,
-    label: searchParams.label,
-    moon_sign: searchParams.moon_sign,
+    date: sp.date,
+    label: sp.label,
+    moon_sign: sp.moon_sign,
   });
 
   return (

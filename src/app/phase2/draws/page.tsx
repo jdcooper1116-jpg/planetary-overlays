@@ -12,13 +12,17 @@ const PILOT_DATES = Array.from({ length: 31 }, (_, i) => {
 });
 
 interface PageProps {
-  searchParams: { date?: string; label?: string };
+  searchParams: Promise<{
+    date?: string;
+    label?: string;
+  }>;
 }
 
 export default async function DrawsPage({ searchParams }: PageProps) {
+  const sp = await searchParams;
   const draws = await readDraws({
-    date: searchParams.date,
-    label: searchParams.label,
+    date: sp.date,
+    label: sp.label,
   });
 
   return (

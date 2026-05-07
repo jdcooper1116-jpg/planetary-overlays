@@ -16,11 +16,14 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 interface PageProps {
-  params: { hypothesisId: string };
+  params: Promise<{
+    hypothesisId: string;
+  }>;
 }
 
 export default async function HypothesisDetailPage({ params }: PageProps) {
-  const detail = await readHypothesisDetail(params.hypothesisId);
+  const { hypothesisId } = await params;
+  const detail = await readHypothesisDetail(hypothesisId);
   if (!detail) notFound();
 
   const { hypothesis, evidence_by_result, totals } = detail;

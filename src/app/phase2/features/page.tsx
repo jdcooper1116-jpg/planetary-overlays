@@ -12,7 +12,12 @@ const ZODIAC_SIGNS = [
 ];
 
 interface PageProps {
-  searchParams: { date?: string; label?: string; weekday?: string; moon_sign?: string };
+  searchParams: Promise<{
+    date?: string;
+    label?: string;
+    weekday?: string;
+    moon_sign?: string;
+  }>;
 }
 
 function Flag({ active, label }: { active: boolean; label: string }) {
@@ -24,11 +29,12 @@ function Flag({ active, label }: { active: boolean; label: string }) {
 }
 
 export default async function FeaturesPage({ searchParams }: PageProps) {
+  const sp = await searchParams;
   const features = await readFeatures({
-    date: searchParams.date,
-    label: searchParams.label,
-    weekday: searchParams.weekday,
-    moon_sign: searchParams.moon_sign,
+    date: sp.date,
+    label: sp.label,
+    weekday: sp.weekday,
+    moon_sign: sp.moon_sign,
   });
 
   return (

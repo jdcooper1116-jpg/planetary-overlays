@@ -10,7 +10,10 @@ const LIFT_OPTIONS = ['1.2', '1.5', '2.0', '3.0'];
 const FAMILY_OPTIONS = PATTERN_FAMILIES.map((f) => f.family_id);
 
 interface PageProps {
-  searchParams: { family?: string; lift_gte?: string };
+  searchParams: Promise<{
+    family?: string;
+    lift_gte?: string;
+  }>;
 }
 
 function LiftBar({ lift }: { lift: number }) {

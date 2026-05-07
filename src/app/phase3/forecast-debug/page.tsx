@@ -5,11 +5,14 @@ import Link from 'next/link';
 export const revalidate = 0; // always fresh for debug
 
 interface PageProps {
-  searchParams: { forecast_id?: string };
+  searchParams: Promise<{
+    forecast_id?: string;
+  }>;
 }
 
 export default async function ForecastDebugPage({ searchParams }: PageProps) {
-  const report = await buildForecastDebugReport(searchParams.forecast_id);
+  const sp = await searchParams;
+  const report = await buildForecastDebugReport(sp.forecast_id);
 
   return (
     <div className="px-8 py-8 max-w-5xl">
@@ -24,8 +27,8 @@ export default async function ForecastDebugPage({ searchParams }: PageProps) {
       {/* Forecast selector */}
       <div className="mb-6 flex items-center gap-3 flex-wrap">
         <span className="text-xs text-gray-500 font-mono">
-          {searchParams.forecast_id
-            ? `Showing: ${searchParams.forecast_id}`
+          {sp.forecast_id
+            ? `Showing: ${sp.forecast_id}`
             : 'Showing: latest forecast'}
         </span>
         <Link

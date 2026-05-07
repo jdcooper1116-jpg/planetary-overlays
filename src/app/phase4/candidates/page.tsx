@@ -175,7 +175,7 @@ export default async function CandidatesPage({ searchParams }: PageProps) {
                 </div>
 
                 <Link
-                  href={`/phase4/candidates/${cand.candidate_id}`}
+                  href={`/phase4/candidates/${encodeURIComponent(String(cand.id ?? cand.candidate_id ?? ''))}`}
                   className="flex-shrink-0 text-xs text-indigo-400 hover:text-indigo-300 font-mono"
                 >
                   detail →

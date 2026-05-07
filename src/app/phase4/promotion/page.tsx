@@ -39,8 +39,8 @@ const PIPELINE_STEPS = [
     order: 'Step 4',
     title: 'Run Promotion Engine',
     description:
-      'Evaluates validated candidates against promotion thresholds. Promotes qualifying candidates ' +
-      'into hypothesis_registry as status=proposed. They remain forecast-blocked until manually approved. Rejects others and keeps rejected records for audit trail.',
+      'Evaluates validated candidates against promotion thresholds. Eligible candidates enter ' +
+      'hypothesis_registry as status=proposed and remain forecast-blocked until manually approved.',
     endpoint: '/api/four-pillars/phase4/promote-candidates',
     color: 'green' as const,
   },
@@ -59,14 +59,13 @@ export default async function PromotionPage() {
   return (
     <div className="px-8 py-8 max-w-4xl">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-100 mb-1">Phase 4 Promotion Engine</h1>
+        <h1 className="text-2xl font-bold text-gray-100 mb-1">Phase 4 Promotion & Review</h1>
         <p className="text-sm text-gray-500">
           Run all four steps in order. Each step feeds the next.
           Eligible candidates enter hypothesis_registry as status=proposed and require manual review before forecast use.
         </p>
       </div>
 
-      {/* Pipeline status summary */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl px-6 py-5 mb-8">
         <div className="text-sm font-semibold text-gray-200 mb-4">Pipeline Status</div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -83,7 +82,6 @@ export default async function PromotionPage() {
           ))}
         </div>
 
-        {/* Lifecycle counts */}
         <div className="mt-4 flex flex-wrap gap-3 text-xs font-mono">
           {Object.entries(candStats.by_status).map(([status, count]) => (
             <span key={status} className="text-gray-500">
@@ -93,7 +91,6 @@ export default async function PromotionPage() {
         </div>
       </div>
 
-      {/* Promotion thresholds callout */}
       <div className="bg-gray-900 border border-indigo-900/40 rounded-xl px-6 py-4 mb-8">
         <div className="text-sm font-semibold text-gray-200 mb-3">Promotion Thresholds</div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs font-mono">
@@ -115,7 +112,6 @@ export default async function PromotionPage() {
         </p>
       </div>
 
-      {/* Recently promoted */}
       {reviewRuns.length > 0 && (
         <div className="bg-green-950/20 border border-green-800/40 rounded-xl px-6 py-4 mb-8">
           <div className="text-sm font-semibold text-green-300 mb-3">
@@ -141,7 +137,6 @@ export default async function PromotionPage() {
         </div>
       )}
 
-      {/* Pipeline step cards */}
       <div className="space-y-4">
         {PIPELINE_STEPS.map((step) => (
           <div key={step.order}>
@@ -157,7 +152,6 @@ export default async function PromotionPage() {
         ))}
       </div>
 
-      {/* Navigation */}
       <div className="mt-8 pt-6 border-t border-gray-800 grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { href: '/phase4/observations', label: '→ Observations' },

@@ -3,12 +3,18 @@ export type EvidenceResult = 'support' | 'contradiction' | 'neutral' | 'inconclu
 /**
  * Simple condition evaluator for trigger_logic and expected_logic.
  *
- * Supported operators (applied to symbolic feature fields):
- *   { "key": "value" }      → exact string match
- *   { "key": 9 }            → exact number match
- *   { "key_gte": 15 }       → features[key] >= 15
- *   { "key_lte": 5 }        → features[key] <= 5
- *   { "key_in": ["a","b"] } → features[key] is in array
+ * Supported operators:
+ *   { "key": "value" }        → exact string match
+ *   { "key": 9 }              → exact number match
+ *   { "key": true/false }     → exact boolean match
+ *   { "key_gte": 15 }         → features[key] >= 15
+ *   { "key_lte": 5 }          → features[key] <= 5
+ *   { "key_in": ["a","b"] }   → features[key] is in array (strings)
+ *   { "key_in": [3, 9] }      → features[key] is in array (numbers)
+ *
+ * Phase 3 additions — these use the _in suffix:
+ *   digit_root_in: [3, 9]        → features.digit_root in [3, 9]
+ *   moon_phase_name_in: [...]    → features.moon_phase_name in [...]
  *
  * Returns:
  *   true  → all conditions matched
@@ -33,7 +39,7 @@ function evaluateConditions(
       if (features[fk] === undefined || features[fk] === null) return null;
       if (!(condValue as unknown[]).includes(features[fk])) return false;
     } else {
-      // Exact match
+      // Exact match (string, number, or boolean)
       if (features[condKey] === undefined) return null;
       if (features[condKey] !== condValue) return false;
     }

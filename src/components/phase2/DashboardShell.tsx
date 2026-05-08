@@ -40,6 +40,7 @@ const NAV_GROUPS = [
       { href: '/phase5/forecasts', label: '📡 Forecast Runs' },
       { href: '/phase5/outcomes', label: '🎰 Outcomes' },
       { href: '/phase5/hypothesis-performance', label: '📊 Hyp. Performance' },
+      { href: '/phase5/pick4-evidence-review', label: '📋 Pick 4 Evidence' },
       { href: '/phase5/experiments', label: '🧬 Experiments' },
     ],
   },

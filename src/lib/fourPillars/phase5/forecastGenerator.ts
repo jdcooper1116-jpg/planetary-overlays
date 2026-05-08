@@ -46,6 +46,13 @@ export interface GenerateForecastResult {
 export async function generateForecastRun(
   params: GenerateForecastParams
 ): Promise<GenerateForecastResult> {
+  if (params.game_id !== PILOT_GAME_ID) {
+    throw new Error(
+      `Forecast generation is currently supported only for ${PILOT_GAME_ID}. ` +
+      `${params.game_id} remains research/backtest-only until forecast support is explicitly approved.`
+    );
+  }
+
   const db = getAdminDb();
   const draw_label = normalizePeriodLabel(params.target_draw_label);
   const forecast_id = buildForecastId(params.game_id, params.target_draw_date, draw_label);

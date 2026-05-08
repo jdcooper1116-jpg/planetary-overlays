@@ -16,6 +16,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (body.game_id && body.game_id !== PILOT_GAME_ID) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            `Forecast generation is currently supported only for ${PILOT_GAME_ID}. ` +
+            `${body.game_id} remains research/backtest-only until forecast support is explicitly approved.`,
+        },
+        { status: 400 }
+      );
+    }
+
     const result = await generateForecastRun({
       game_id: body.game_id ?? PILOT_GAME_ID,
       jurisdiction_id: body.jurisdiction_id ?? PILOT_JURISDICTION_ID,

@@ -99,12 +99,20 @@ const PICK4_JOBS: JobCard[] = [
     order: 'P4 Step 3',
   },
   {
+    title: 'Seed NY Pick 4 Hypotheses',
+    description: 'Seeds the tiny Phase 6H starter/testing hypothesis set explicitly scoped to ny_pick4.',
+    endpoint: '/api/four-pillars/jobs/run-seed-hypotheses',
+    body: NY_PICK4_PILOT_BODY,
+    color: 'sky',
+    order: 'P4 Step 4',
+  },
+  {
     title: 'Run NY Pick 4 Backtest',
     description: 'Runs evidence backtest for hypotheses explicitly scoped to ny_pick4. Expected to be empty until Pick 4 hypotheses exist.',
     endpoint: '/api/four-pillars/jobs/run-backtest',
     body: NY_PICK4_PILOT_BODY,
     color: 'amber',
-    order: 'P4 Step 4',
+    order: 'P4 Step 5',
   },
 ];
 

@@ -141,9 +141,7 @@ export function resolveControlledPilotDateRange(input?: {
   game_id?: unknown;
   state?: unknown;
   jurisdiction_id?: unknown;
-}): { date_from: string; date_to: string } {
-  const date_from = stringValue(input?.date_from) ?? PILOT_DATE_FROM;
-  const date_to = stringValue(input?.date_to) ?? PILOT_DATE_TO;
+}): { window_id: ControlledEvidenceWindowId; date_from: string; date_to: string } {
   const requestedWindowId = stringValue(input?.expansion_window_id);
 
   const windowConfig = requestedWindowId
@@ -175,13 +173,16 @@ export function resolveControlledPilotDateRange(input?: {
     }
   }
 
+  const date_from = stringValue(input?.date_from) ?? windowConfig.date_from;
+  const date_to = stringValue(input?.date_to) ?? windowConfig.date_to;
+
   if (date_from < windowConfig.date_from || date_to > windowConfig.date_to || date_from > date_to) {
     throw new Error(
       `Pilot date range must stay within ${windowConfig.date_from} through ${windowConfig.date_to}`
     );
   }
 
-  return { date_from, date_to };
+  return { window_id: windowConfig.window_id, date_from, date_to };
 }
 
 export function buildPilotDefaultForecastTimeUtc(date: string): string {

@@ -1,9 +1,8 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getAdminDb } from '@/lib/firebase/admin';
 import {
   NY_PICK4_GAME_ID,
-  PILOT_DATE_FROM,
-  PILOT_DATE_TO,
+  resolveControlledPilotDateRange,
   serializeDoc,
 } from '@/lib/fourPillars/readers/pilotConstants';
 
@@ -17,28 +16,35 @@ function isSingleDigit(value: unknown): value is string {
   return typeof value === 'string' && /^[0-9]$/.test(value);
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const db = getAdminDb();
+    const { searchParams } = new URL(req.url);
+    const dateRange = resolveControlledPilotDateRange({
+      date_from: searchParams.get('date_from') ?? undefined,
+      date_to: searchParams.get('date_to') ?? undefined,
+      expansion_window_id: searchParams.get('expansion_window_id') ?? undefined,
+      game_id: NY_PICK4_GAME_ID,
+    });
 
     const [drawsSnap, overlaysSnap, featuresSnap] = await Promise.all([
       db
         .collection('draws')
         .where('game_id', '==', NY_PICK4_GAME_ID)
-        .where('draw_date', '>=', PILOT_DATE_FROM)
-        .where('draw_date', '<=', PILOT_DATE_TO)
+        .where('draw_date', '>=', dateRange.date_from)
+        .where('draw_date', '<=', dateRange.date_to)
         .get(),
       db
         .collection('celestial_overlays')
         .where('game_id', '==', NY_PICK4_GAME_ID)
-        .where('draw_date', '>=', PILOT_DATE_FROM)
-        .where('draw_date', '<=', PILOT_DATE_TO)
+        .where('draw_date', '>=', dateRange.date_from)
+        .where('draw_date', '<=', dateRange.date_to)
         .get(),
       db
         .collection('draw_symbolic_features')
         .where('game_id', '==', NY_PICK4_GAME_ID)
-        .where('draw_date', '>=', PILOT_DATE_FROM)
-        .where('draw_date', '<=', PILOT_DATE_TO)
+        .where('draw_date', '>=', dateRange.date_from)
+        .where('draw_date', '<=', dateRange.date_to)
         .get(),
     ]);
 
@@ -91,8 +97,9 @@ export async function GET() {
       ok: true,
       pilot_scope: {
         game_id: NY_PICK4_GAME_ID,
-        date_from: PILOT_DATE_FROM,
-        date_to: PILOT_DATE_TO,
+        expansion_window_id: dateRange.window_id,
+        date_from: dateRange.date_from,
+        date_to: dateRange.date_to,
       },
       status: {
         draws_mirrored: draws.length,

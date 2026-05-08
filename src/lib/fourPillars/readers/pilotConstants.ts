@@ -1,8 +1,19 @@
 // Phase 1 pilot scope — do not change these without re-running the pilot
 export const PILOT_GAME_ID = 'ny_pick3';
 export const PILOT_JURISDICTION_ID = 'ny';
+export const PILOT_STATE = 'NY';
+export const PILOT_ENGINE_GAME = 'pick3';
 export const PILOT_DATE_FROM = '2024-01-01';
 export const PILOT_DATE_TO = '2024-01-31';
+export const PILOT_JURISDICTION_IDS = [PILOT_JURISDICTION_ID];
+export const PILOT_GAME_IDS = [PILOT_GAME_ID];
+export const PILOT_DRAW_LABELS = ['midday', 'evening'];
+export const PILOT_DEFAULT_FORECAST_DRAW_LABEL = 'midday';
+export const PILOT_DEFAULT_FORECAST_UTC_TIME = 'T17:20:00Z';
+
+export function buildPilotDefaultForecastTimeUtc(date: string): string {
+  return `${date}${PILOT_DEFAULT_FORECAST_UTC_TIME}`;
+}
 
 // Safely serialize a Firestore Timestamp, Date, or ISO string to a string
 export function serializeDate(value: unknown): string | null {

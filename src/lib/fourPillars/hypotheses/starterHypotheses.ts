@@ -1,4 +1,9 @@
 import { RULE_VERSION } from '../constants/versions';
+import {
+  PILOT_DRAW_LABELS,
+  PILOT_GAME_IDS,
+  PILOT_JURISDICTION_IDS,
+} from '../readers/pilotConstants';
 
 export interface HypothesisDefinition {
   hypothesis_id: string;
@@ -37,9 +42,9 @@ export const STARTER_HYPOTHESES: HypothesisDefinition[] = [
       'correspondence in traditional Vedic mapping.',
     system_family: 'astrology',
     system_name: 'moon_sign_positional',
-    jurisdiction_ids: ['ny'],
-    game_ids: ['ny_pick3'],
-    draw_labels: ['midday', 'evening'],
+    jurisdiction_ids: PILOT_JURISDICTION_IDS,
+    game_ids: PILOT_GAME_IDS,
+    draw_labels: PILOT_DRAW_LABELS,
     trigger_logic: { moon_sign: 'Scorpio' },
     expected_logic: { digit_3: '8' },
     rule_version: RULE_VERSION,
@@ -55,9 +60,9 @@ export const STARTER_HYPOTHESES: HypothesisDefinition[] = [
       'peak of the lunar cycle.',
     system_family: 'astrology',
     system_name: 'moon_phase_numerology',
-    jurisdiction_ids: ['ny'],
-    game_ids: ['ny_pick3'],
-    draw_labels: ['midday', 'evening'],
+    jurisdiction_ids: PILOT_JURISDICTION_IDS,
+    game_ids: PILOT_GAME_IDS,
+    draw_labels: PILOT_DRAW_LABELS,
     trigger_logic: { moon_phase_name: 'Full Moon' },
     expected_logic: { digit_root: 9 },
     rule_version: RULE_VERSION,
@@ -73,9 +78,9 @@ export const STARTER_HYPOTHESES: HypothesisDefinition[] = [
       'concentrated numerical energy of Saturn\'s rulership.',
     system_family: 'numerology',
     system_name: 'weekday_ruler_digit_family',
-    jurisdiction_ids: ['ny'],
-    game_ids: ['ny_pick3'],
-    draw_labels: ['midday', 'evening'],
+    jurisdiction_ids: PILOT_JURISDICTION_IDS,
+    game_ids: PILOT_GAME_IDS,
+    draw_labels: PILOT_DRAW_LABELS,
     trigger_logic: { weekday_name: 'Saturday' },
     expected_logic: { digit_sum_gte: 15 },
     rule_version: RULE_VERSION,

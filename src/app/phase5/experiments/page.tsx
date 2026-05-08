@@ -1,6 +1,7 @@
 import { readAllForecastRuns, readForecastSummaryStats } from '@/lib/fourPillars/phase5/forecastReaders';
 import JobRunnerCard from '@/components/phase3/JobRunnerCard';
 import Link from 'next/link';
+import { PILOT_GAME_ID, PILOT_JURISDICTION_ID } from '@/lib/fourPillars/readers/pilotConstants';
 
 export const revalidate = 0;
 
@@ -59,7 +60,7 @@ export default async function ExperimentsPage() {
         </p>
         <div className="space-y-4">
           {DATES_TO_TRY.map((exp) => {
-            const forecastId = `fp5_ny_pick3_${exp.date}_${exp.label}`;
+            const forecastId = `fp5_${PILOT_GAME_ID}_${exp.date}_${exp.label}`;
             const alreadyResolved = resolvedIds.has(forecastId);
 
             return (
@@ -84,8 +85,8 @@ export default async function ExperimentsPage() {
                     endpoint="/api/four-pillars/phase5/generate-forecast"
                     order={`${exp.date} ${exp.label}`}
                     body={{
-                      game_id: 'ny_pick3',
-                      jurisdiction_id: 'ny',
+                      game_id: PILOT_GAME_ID,
+                      jurisdiction_id: PILOT_JURISDICTION_ID,
                       target_draw_date: exp.date,
                       target_draw_label: exp.label,
                       target_draw_time_utc: exp.utc,
@@ -107,7 +108,7 @@ export default async function ExperimentsPage() {
           description="Find all generated forecasts and resolve them against the mirrored draws collection. Safe to run multiple times."
           endpoint="/api/four-pillars/phase5/backfill-forecast-outcomes"
           order="Backfill Outcomes"
-          body={{ game_id: 'ny_pick3' }}
+          body={{ game_id: PILOT_GAME_ID }}
           color="amber"
         />
       </div>

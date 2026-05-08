@@ -1,6 +1,11 @@
 import { getAdminDb } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
-import { PILOT_GAME_ID, serializeDoc } from '../readers/pilotConstants';
+import {
+  PILOT_DRAW_LABELS,
+  PILOT_GAME_ID,
+  PILOT_JURISDICTION_ID,
+  serializeDoc,
+} from '../readers/pilotConstants';
 import { scoreCandidate } from './scoring';
 import { RULE_VERSION } from '../constants/versions';
 
@@ -20,6 +25,14 @@ export interface GenerateCandidatesResult {
 
 function buildCandidateId(observationId: string): string {
   return `cand_${observationId.replace(/^obs_/, '')}`;
+}
+
+function stringArrayOrFallback(value: unknown, fallback: readonly string[]): string[] {
+  if (Array.isArray(value)) {
+    const values = value.filter((item): item is string => typeof item === 'string' && item.length > 0);
+    if (values.length > 0) return values;
+  }
+  return [...fallback];
 }
 
 /**
@@ -189,6 +202,11 @@ export async function generateCandidates(): Promise<GenerateCandidatesResult> {
 
       try {
         const { trigger_logic, expected_logic } = buildLogic(obs);
+        const gameIds = stringArrayOrFallback(obs.game_ids, [String(obs.game_id ?? PILOT_GAME_ID)]);
+        const jurisdictionIds = stringArrayOrFallback(obs.jurisdiction_ids, [
+          String(obs.jurisdiction_id ?? PILOT_JURISDICTION_ID),
+        ]);
+        const drawLabels = stringArrayOrFallback(obs.draw_labels, PILOT_DRAW_LABELS);
         const scoring = scoreCandidate({
           lift,
           sample_size: obs.sample_size as number,
@@ -209,10 +227,10 @@ export async function generateCandidates(): Promise<GenerateCandidatesResult> {
           trigger_logic,
           expected_logic,
           rule_version: RULE_VERSION,
-          game_id: PILOT_GAME_ID,
-          game_ids: [PILOT_GAME_ID],
-          jurisdiction_ids: ['ny'],
-          draw_labels: ['midday', 'evening'],
+          game_id: gameIds[0] ?? PILOT_GAME_ID,
+          game_ids: gameIds,
+          jurisdiction_ids: jurisdictionIds,
+          draw_labels: drawLabels,
           // Observation-derived stats
           sample_size: obs.sample_size,
           observed_count: obs.observed_count,

@@ -2,6 +2,12 @@ import { readAllForecastRuns, readForecastSummaryStats } from '@/lib/fourPillars
 import ForecastSummaryCard from '@/components/phase5/ForecastSummaryCard';
 import PerformanceStatCard from '@/components/phase5/PerformanceStatCard';
 import JobRunnerCard from '@/components/phase3/JobRunnerCard';
+import {
+  buildPilotDefaultForecastTimeUtc,
+  PILOT_DEFAULT_FORECAST_DRAW_LABEL,
+  PILOT_GAME_ID,
+  PILOT_JURISDICTION_ID,
+} from '@/lib/fourPillars/readers/pilotConstants';
 
 export const revalidate = 0;
 
@@ -13,7 +19,7 @@ export default async function Phase5ForecastsPage() {
 
   const hitRate = stats.hit_rate !== null ? `${Math.round(stats.hit_rate * 100)}%` : '—';
   const todayDate = new Date().toISOString().slice(0, 10);
-  const todayUTC = `${todayDate}T17:20:00Z`; // NY midday EST default
+  const todayUTC = buildPilotDefaultForecastTimeUtc(todayDate);
 
   return (
     <div className="px-8 py-8 max-w-5xl">
@@ -46,10 +52,10 @@ export default async function Phase5ForecastsPage() {
           endpoint="/api/four-pillars/phase5/generate-forecast"
           order="Generate Forecast"
           body={{
-            game_id: 'ny_pick3',
-            jurisdiction_id: 'ny',
+            game_id: PILOT_GAME_ID,
+            jurisdiction_id: PILOT_JURISDICTION_ID,
             target_draw_date: todayDate,
-            target_draw_label: 'midday',
+            target_draw_label: PILOT_DEFAULT_FORECAST_DRAW_LABEL,
             target_draw_time_utc: todayUTC,
           }}
           color="indigo"
@@ -63,7 +69,7 @@ export default async function Phase5ForecastsPage() {
           description="Resolve all generated forecasts whose target draw date now exists in the draws collection."
           endpoint="/api/four-pillars/phase5/backfill-forecast-outcomes"
           order="Backfill Outcomes"
-          body={{ game_id: 'ny_pick3' }}
+          body={{ game_id: PILOT_GAME_ID }}
           color="amber"
         />
       </div>

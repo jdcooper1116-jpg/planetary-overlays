@@ -1,10 +1,15 @@
 import JobRunnerCard from '@/components/phase3/JobRunnerCard';
 import { readRecentJobs } from '@/lib/fourPillars/readers/forecastDebugReader';
 import {
+  NY_DUAL_GAME_JAN_MAR_2024_DATE_FROM,
+  NY_DUAL_GAME_JAN_MAR_2024_DATE_TO,
+  NY_DUAL_GAME_JAN_MAR_2024_WINDOW_ID,
   NY_PICK4_ENGINE_GAME,
   NY_PICK4_GAME_ID,
+  PILOT_ENGINE_GAME,
   PILOT_DATE_FROM,
   PILOT_DATE_TO,
+  PILOT_GAME_ID,
   PILOT_STATE,
 } from '@/lib/fourPillars/readers/pilotConstants';
 
@@ -73,6 +78,24 @@ const NY_PICK4_PILOT_BODY = {
   date_to: PILOT_DATE_TO,
 };
 
+const NY_PICK3_JAN_MAR_BODY = {
+  expansion_window_id: NY_DUAL_GAME_JAN_MAR_2024_WINDOW_ID,
+  game_id: PILOT_GAME_ID,
+  game: PILOT_ENGINE_GAME,
+  state: PILOT_STATE,
+  date_from: NY_DUAL_GAME_JAN_MAR_2024_DATE_FROM,
+  date_to: NY_DUAL_GAME_JAN_MAR_2024_DATE_TO,
+};
+
+const NY_PICK4_JAN_MAR_BODY = {
+  expansion_window_id: NY_DUAL_GAME_JAN_MAR_2024_WINDOW_ID,
+  game_id: NY_PICK4_GAME_ID,
+  game: NY_PICK4_ENGINE_GAME,
+  state: PILOT_STATE,
+  date_from: NY_DUAL_GAME_JAN_MAR_2024_DATE_FROM,
+  date_to: NY_DUAL_GAME_JAN_MAR_2024_DATE_TO,
+};
+
 const PICK4_JOBS: JobCard[] = [
   {
     title: 'Sync NY Pick 4 Pilot Draws',
@@ -113,6 +136,73 @@ const PICK4_JOBS: JobCard[] = [
     body: NY_PICK4_PILOT_BODY,
     color: 'amber',
     order: 'P4 Step 5',
+  },
+];
+
+const DUAL_GAME_EXPANSION_JOBS: JobCard[] = [
+  {
+    title: 'Sync NY Pick 3 Jan-Mar Draws',
+    description: 'Phase 6M controlled expansion: mirrors NY Pick 3 Jan-Mar 2024 only when the approved expansion_window_id is present.',
+    endpoint: '/api/four-pillars/sync-draws',
+    body: NY_PICK3_JAN_MAR_BODY,
+    color: 'cyan',
+    order: '6M Step 1A',
+  },
+  {
+    title: 'Sync NY Pick 4 Jan-Mar Draws',
+    description: 'Phase 6M controlled expansion: mirrors NY Pick 4 Jan-Mar 2024 only when the approved expansion_window_id is present.',
+    endpoint: '/api/four-pillars/sync-draws',
+    body: NY_PICK4_JAN_MAR_BODY,
+    color: 'cyan',
+    order: '6M Step 1B',
+  },
+  {
+    title: 'Build NY Pick 3 Jan-Mar Overlays',
+    description: 'Builds celestial overlays for the controlled NY Pick 3 Jan-Mar expansion window.',
+    endpoint: '/api/four-pillars/jobs/run-build-overlays',
+    body: NY_PICK3_JAN_MAR_BODY,
+    color: 'indigo',
+    order: '6M Step 2A',
+  },
+  {
+    title: 'Build NY Pick 4 Jan-Mar Overlays',
+    description: 'Builds celestial overlays for the controlled NY Pick 4 Jan-Mar expansion window.',
+    endpoint: '/api/four-pillars/jobs/run-build-overlays',
+    body: NY_PICK4_JAN_MAR_BODY,
+    color: 'indigo',
+    order: '6M Step 2B',
+  },
+  {
+    title: 'Build NY Pick 3 Jan-Mar Symbolic Features',
+    description: 'Builds symbolic features for NY Pick 3 after Jan-Mar overlays exist.',
+    endpoint: '/api/four-pillars/jobs/run-build-features',
+    body: NY_PICK3_JAN_MAR_BODY,
+    color: 'violet',
+    order: '6M Step 3A',
+  },
+  {
+    title: 'Build NY Pick 4 Jan-Mar Symbolic Features',
+    description: 'Builds symbolic features for NY Pick 4 after Jan-Mar overlays exist; preserves Pick 4 string results.',
+    endpoint: '/api/four-pillars/jobs/run-build-features',
+    body: NY_PICK4_JAN_MAR_BODY,
+    color: 'violet',
+    order: '6M Step 3B',
+  },
+  {
+    title: 'Run NY Pick 3 Jan-Mar Backtest',
+    description: 'Retests existing NY Pick 3 hypotheses over the controlled Jan-Mar expansion window.',
+    endpoint: '/api/four-pillars/jobs/run-backtest',
+    body: NY_PICK3_JAN_MAR_BODY,
+    color: 'amber',
+    order: '6M Step 4A',
+  },
+  {
+    title: 'Run NY Pick 4 Jan-Mar Backtest',
+    description: 'Retests existing NY Pick 4 hypotheses over Jan-Mar. Pick 4 forecasts remain disabled.',
+    endpoint: '/api/four-pillars/jobs/run-backtest',
+    body: NY_PICK4_JAN_MAR_BODY,
+    color: 'amber',
+    order: '6M Step 4B',
   },
 ];
 
@@ -168,6 +258,30 @@ export default async function JobsPage() {
         </div>
         <div className="space-y-4">
           {PICK4_JOBS.map((j) => (
+            <div key={`${j.endpoint}-${j.order}`}>
+              <div className="text-xs text-gray-600 font-mono mb-1.5">{j.order}</div>
+              <JobRunnerCard
+                title={j.title}
+                description={j.description}
+                endpoint={j.endpoint}
+                body={j.body}
+                color={j.color}
+                order={j.order}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mb-10">
+        <div className="mb-4">
+          <div className="text-sm font-semibold text-gray-300 mb-1">Phase 6M Controlled Jan-Mar Expansion</div>
+          <p className="text-xs text-gray-600 font-mono">
+            Explicit expansion_window_id required. No seed or forecast jobs are included here.
+          </p>
+        </div>
+        <div className="space-y-4">
+          {DUAL_GAME_EXPANSION_JOBS.map((j) => (
             <div key={`${j.endpoint}-${j.order}`}>
               <div className="text-xs text-gray-600 font-mono mb-1.5">{j.order}</div>
               <JobRunnerCard

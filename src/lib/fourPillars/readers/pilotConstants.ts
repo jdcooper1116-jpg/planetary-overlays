@@ -7,6 +7,9 @@ export const NY_PICK4_GAME_ID = 'ny_pick4';
 export const NY_PICK4_ENGINE_GAME = 'pick4';
 export const PILOT_DATE_FROM = '2024-01-01';
 export const PILOT_DATE_TO = '2024-01-31';
+export const NY_DUAL_GAME_JAN_MAR_2024_WINDOW_ID = 'ny_dual_game_jan_mar_2024';
+export const NY_DUAL_GAME_JAN_MAR_2024_DATE_FROM = '2024-01-01';
+export const NY_DUAL_GAME_JAN_MAR_2024_DATE_TO = '2024-03-31';
 export const PILOT_JURISDICTION_IDS = [PILOT_JURISDICTION_ID];
 export const PILOT_GAME_IDS = [PILOT_GAME_ID];
 export const CONTROLLED_PILOT_GAME_IDS = [PILOT_GAME_ID, NY_PICK4_GAME_ID] as const;
@@ -15,6 +18,17 @@ export const PILOT_DEFAULT_FORECAST_DRAW_LABEL = 'midday';
 export const PILOT_DEFAULT_FORECAST_UTC_TIME = 'T17:20:00Z';
 
 export type ControlledPilotGameId = (typeof CONTROLLED_PILOT_GAME_IDS)[number];
+export type ControlledEvidenceWindowId = 'pilot_jan_2024' | typeof NY_DUAL_GAME_JAN_MAR_2024_WINDOW_ID;
+
+export type ControlledEvidenceWindowConfig = {
+  window_id: ControlledEvidenceWindowId;
+  date_from: string;
+  date_to: string;
+  allowed_game_ids: readonly ControlledPilotGameId[];
+  jurisdiction_id: typeof PILOT_JURISDICTION_ID;
+  state: typeof PILOT_STATE;
+  is_default: boolean;
+};
 
 export type ControlledPilotGameConfig = {
   game_id: ControlledPilotGameId;
@@ -44,6 +58,30 @@ export const CONTROLLED_PILOT_GAME_CONFIGS: Record<
     engine_game: NY_PICK4_ENGINE_GAME,
     ball_count: 4,
     display_name: 'New York Pick 4',
+  },
+};
+
+export const CONTROLLED_EVIDENCE_WINDOWS: Record<
+  ControlledEvidenceWindowId,
+  ControlledEvidenceWindowConfig
+> = {
+  pilot_jan_2024: {
+    window_id: 'pilot_jan_2024',
+    date_from: PILOT_DATE_FROM,
+    date_to: PILOT_DATE_TO,
+    allowed_game_ids: CONTROLLED_PILOT_GAME_IDS,
+    jurisdiction_id: PILOT_JURISDICTION_ID,
+    state: PILOT_STATE,
+    is_default: true,
+  },
+  [NY_DUAL_GAME_JAN_MAR_2024_WINDOW_ID]: {
+    window_id: NY_DUAL_GAME_JAN_MAR_2024_WINDOW_ID,
+    date_from: NY_DUAL_GAME_JAN_MAR_2024_DATE_FROM,
+    date_to: NY_DUAL_GAME_JAN_MAR_2024_DATE_TO,
+    allowed_game_ids: CONTROLLED_PILOT_GAME_IDS,
+    jurisdiction_id: PILOT_JURISDICTION_ID,
+    state: PILOT_STATE,
+    is_default: false,
   },
 };
 
@@ -99,13 +137,47 @@ export function resolveControlledPilotGameConfig(input?: {
 export function resolveControlledPilotDateRange(input?: {
   date_from?: unknown;
   date_to?: unknown;
+  expansion_window_id?: unknown;
+  game_id?: unknown;
+  state?: unknown;
+  jurisdiction_id?: unknown;
 }): { date_from: string; date_to: string } {
   const date_from = stringValue(input?.date_from) ?? PILOT_DATE_FROM;
   const date_to = stringValue(input?.date_to) ?? PILOT_DATE_TO;
+  const requestedWindowId = stringValue(input?.expansion_window_id);
 
-  if (date_from < PILOT_DATE_FROM || date_to > PILOT_DATE_TO || date_from > date_to) {
+  const windowConfig = requestedWindowId
+    ? CONTROLLED_EVIDENCE_WINDOWS[requestedWindowId as ControlledEvidenceWindowId]
+    : CONTROLLED_EVIDENCE_WINDOWS.pilot_jan_2024;
+
+  if (!windowConfig) {
+    throw new Error(`Unsupported expansion_window_id: ${requestedWindowId}`);
+  }
+
+  if (requestedWindowId) {
+    const requestedGameId = stringValue(input?.game_id);
+    if (requestedGameId && !windowConfig.allowed_game_ids.includes(requestedGameId as ControlledPilotGameId)) {
+      throw new Error(
+        `Expansion window ${requestedWindowId} does not support game_id: ${requestedGameId}`
+      );
+    }
+
+    const requestedState = stringValue(input?.state);
+    if (requestedState && requestedState !== windowConfig.state) {
+      throw new Error(`Expansion window ${requestedWindowId} supports state ${windowConfig.state} only`);
+    }
+
+    const requestedJurisdiction = stringValue(input?.jurisdiction_id);
+    if (requestedJurisdiction && requestedJurisdiction !== windowConfig.jurisdiction_id) {
+      throw new Error(
+        `Expansion window ${requestedWindowId} supports jurisdiction_id ${windowConfig.jurisdiction_id} only`
+      );
+    }
+  }
+
+  if (date_from < windowConfig.date_from || date_to > windowConfig.date_to || date_from > date_to) {
     throw new Error(
-      `Pilot date range must stay within ${PILOT_DATE_FROM} through ${PILOT_DATE_TO}`
+      `Pilot date range must stay within ${windowConfig.date_from} through ${windowConfig.date_to}`
     );
   }
 

@@ -1,15 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { buildOverlays } from '@/lib/fourPillars/overlays/buildOverlays';
-import { PILOT_DATE_FROM, PILOT_DATE_TO, PILOT_GAME_ID } from '@/lib/fourPillars/readers/pilotConstants';
+import {
+  resolveControlledPilotDateRange,
+  resolveControlledPilotGameConfig,
+} from '@/lib/fourPillars/readers/pilotConstants';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
+    const pilotGame = resolveControlledPilotGameConfig(body);
+    const dateRange = resolveControlledPilotDateRange(body);
 
     const result = await buildOverlays({
-      game_id: body.game_id ?? PILOT_GAME_ID,
-      date_from: body.date_from ?? PILOT_DATE_FROM,
-      date_to: body.date_to ?? PILOT_DATE_TO,
+      game_id: pilotGame.game_id,
+      date_from: dateRange.date_from,
+      date_to: dateRange.date_to,
     });
 
     return NextResponse.json({ ok: true, ...result });

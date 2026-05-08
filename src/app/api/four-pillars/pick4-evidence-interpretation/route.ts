@@ -1,0 +1,16 @@
+import { NextResponse } from 'next/server';
+import { interpretPick4EvidenceAudit } from '@/lib/fourPillars/interpretation/pick4EvidenceInterpretation';
+import { readPick4EvidenceAudit } from '@/lib/fourPillars/readers/pick4EvidenceAuditReader';
+
+export async function GET() {
+  try {
+    const audit = await readPick4EvidenceAudit();
+    const interpretation = interpretPick4EvidenceAudit(audit);
+    return NextResponse.json({ ok: true, ...interpretation });
+  } catch (err) {
+    return NextResponse.json(
+      { ok: false, error: err instanceof Error ? err.message : String(err) },
+      { status: 500 }
+    );
+  }
+}

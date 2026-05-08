@@ -1,3 +1,4 @@
+import { interpretPick4EvidenceAudit } from '@/lib/fourPillars/interpretation/pick4EvidenceInterpretation';
 import { readPick4EvidenceAudit } from '@/lib/fourPillars/readers/pick4EvidenceAuditReader';
 
 export const revalidate = 0;
@@ -5,6 +6,8 @@ export const revalidate = 0;
 type Pick4Audit = Awaited<ReturnType<typeof readPick4EvidenceAudit>>;
 type Pick4AuditRecord = Pick4Audit['records'][number];
 type Pick4AuditSample = Pick4AuditRecord['sample_supporting_draws'][number];
+type Pick4Interpretation = ReturnType<typeof interpretPick4EvidenceAudit>;
+type Pick4HypothesisInterpretation = Pick4Interpretation['interpretations'][number];
 
 const BADGE_CLASS =
   'rounded border border-amber-800/50 bg-amber-950/30 px-2 py-1 text-xs font-mono text-amber-300';
@@ -12,6 +15,12 @@ const BADGE_CLASS =
 function pct(value: number | null): string {
   return value === null ? '-' : `${Math.round(value * 100)}%`;
 }
+
+const INTERPRETATION_STYLE: Record<string, string> = {
+  promising_needs_more_data: 'border-emerald-800/50 bg-emerald-950/20 text-emerald-300',
+  insufficient_trigger_count: 'border-amber-800/50 bg-amber-950/20 text-amber-300',
+  weak: 'border-gray-800 bg-gray-950/60 text-gray-400',
+};
 
 function SampleDrawList({
   title,
@@ -78,7 +87,13 @@ function Metric({
   );
 }
 
-function HypothesisCard({ record }: { record: Pick4AuditRecord }) {
+function HypothesisCard({
+  record,
+  interpretation,
+}: {
+  record: Pick4AuditRecord;
+  interpretation: Pick4HypothesisInterpretation;
+}) {
   return (
     <div className="rounded-xl border border-gray-800 bg-gray-900 px-5 py-4">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
@@ -114,6 +129,18 @@ function HypothesisCard({ record }: { record: Pick4AuditRecord }) {
         <Metric label="inconclusive" value={record.inconclusive_count} cls="text-amber-300" />
       </div>
 
+      <div className={`mb-5 rounded border px-3 py-3 ${INTERPRETATION_STYLE[interpretation.interpretation_status]}`}>
+        <div className="mb-1 font-mono text-xs font-semibold">
+          {interpretation.interpretation_status}
+        </div>
+        <p className="text-sm text-gray-300">{interpretation.interpretation_reason}</p>
+        <div className="mt-2 font-mono text-xs text-gray-500">
+          recommended_action: {interpretation.recommended_action}
+          <span className="mx-2 text-gray-700">/</span>
+          forecast_ready: {String(interpretation.forecast_ready)}
+        </div>
+      </div>
+
       <div className="grid gap-4 lg:grid-cols-2">
         <SampleDrawList
           title="sample supporting draws"
@@ -132,6 +159,10 @@ function HypothesisCard({ record }: { record: Pick4AuditRecord }) {
 
 export default async function Pick4EvidenceReviewPage() {
   const audit = await readPick4EvidenceAudit();
+  const interpretation = interpretPick4EvidenceAudit(audit);
+  const interpretationsByHypothesis = new Map(
+    interpretation.interpretations.map((item) => [item.hypothesis_id, item])
+  );
 
   return (
     <div className="max-w-6xl px-8 py-8">
@@ -176,9 +207,36 @@ export default async function Pick4EvidenceReviewPage() {
       </div>
 
       <div className="space-y-4">
-        {audit.records.map((record) => (
-          <HypothesisCard key={record.hypothesis_id} record={record} />
-        ))}
+        {audit.records.map((record) => {
+          const recordInterpretation = interpretationsByHypothesis.get(record.hypothesis_id);
+          if (!recordInterpretation) return null;
+          return (
+            <HypothesisCard
+              key={record.hypothesis_id}
+              record={record}
+              interpretation={recordInterpretation}
+            />
+          );
+        })}
+      </div>
+
+      <div className="mt-8 rounded-xl border border-gray-800 bg-gray-900 px-5 py-4">
+        <div className="mb-3">
+          <h2 className="text-sm font-semibold text-gray-200">Next Hypothesis Batch Proposals</h2>
+          <p className="text-xs text-gray-600">
+            Proposal-only ideas for later review. Nothing here is seeded, approved, promoted, or forecast-enabled.
+          </p>
+        </div>
+        <div className="space-y-3">
+          {interpretation.next_batch_proposals.map((proposal) => (
+            <div key={proposal.proposal_id} className="rounded border border-gray-800 bg-gray-950/50 px-3 py-3">
+              <div className="mb-1 font-mono text-xs text-gray-600">{proposal.proposal_id}</div>
+              <div className="text-sm font-semibold text-gray-200">{proposal.title}</div>
+              <p className="mt-1 text-sm text-gray-500">{proposal.rationale}</p>
+              <div className="mt-2 font-mono text-xs text-amber-300">{proposal.status}</div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

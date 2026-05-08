@@ -40,6 +40,22 @@ const DIGIT_SUM_BANDS: [number, number, string][] = [
   [17, 27, 'high_17_27'],
 ];
 
+function moonSignDigitFamily(position: number): PatternFamily {
+  return {
+    family_id: `moon_sign_digit_${position}`,
+    description: `Moon sign → position ${position} digit of result`,
+    trigger_field: 'moon_sign',
+    outcome_field: `digit_${position}`,
+    outcome_type: 'exact',
+    outcome_values: DIGITS,
+    min_trigger_sample: 3,
+  };
+}
+
+// Readiness only: this helper can produce position 4 families later, but Phase 6B
+// keeps the active Pick 3 observation set unchanged.
+const ACTIVE_POSITIONAL_DIGIT_POSITIONS = [1, 3];
+
 export const PATTERN_FAMILIES: PatternFamily[] = [
   // ── Weekday → digit root ────────────────────────────────────────────────────
   {
@@ -74,27 +90,8 @@ export const PATTERN_FAMILIES: PatternFamily[] = [
     min_trigger_sample: 3,
   },
 
-  // ── Moon sign → position 1 digit ─────────────────────────────────────────────
-  {
-    family_id: 'moon_sign_digit_1',
-    description: 'Moon sign → first digit of result',
-    trigger_field: 'moon_sign',
-    outcome_field: 'digit_1',
-    outcome_type: 'exact',
-    outcome_values: DIGITS,
-    min_trigger_sample: 3,
-  },
-
-  // ── Moon sign → position 3 digit ─────────────────────────────────────────────
-  {
-    family_id: 'moon_sign_digit_3',
-    description: 'Moon sign → third digit of result',
-    trigger_field: 'moon_sign',
-    outcome_field: 'digit_3',
-    outcome_type: 'exact',
-    outcome_values: DIGITS,
-    min_trigger_sample: 3,
-  },
+  // ── Moon sign → positional digits ───────────────────────────────────────────
+  ...ACTIVE_POSITIONAL_DIGIT_POSITIONS.map(moonSignDigitFamily),
 
   // ── Moon phase → doubles ────────────────────────────────────────────────────
   {

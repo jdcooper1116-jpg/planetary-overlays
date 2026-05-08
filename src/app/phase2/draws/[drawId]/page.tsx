@@ -3,6 +3,7 @@ import KeyValueBlock from '@/components/phase2/KeyValueBlock';
 import EvidenceTable from '@/components/phase2/EvidenceTable';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { getDigitsFromDraw } from '@/lib/fourPillars/digits/digitHelpers';
 
 export const revalidate = 30;
 
@@ -15,6 +16,16 @@ export default async function DrawDetailPage({ params }: PageProps) {
   const { draw, overlay, features, evidence } = await readDrawById(drawId);
 
   if (!draw) notFound();
+
+  const digits = getDigitsFromDraw(draw);
+  const digitRows = digits.map((digit, index) => ({
+    label: `digit_${index + 1}`,
+    value: digit,
+  }));
+  const vedicRows = digits.map((_, index) => ({
+    label: `digit_${index + 1}_vedic_planet`,
+    value: features?.[`digit_${index + 1}_vedic_planet`],
+  }));
 
   return (
     <div className="px-8 py-8 max-w-5xl">
@@ -60,7 +71,8 @@ export default async function DrawDetailPage({ params }: PageProps) {
             { label: 'draw_label', value: draw.draw_label },
             { label: 'result_padded', value: draw.result_padded },
             { label: 'numbers', value: (draw.numbers as string[])?.join(', ') },
-            { label: 'digit_1 / 2 / 3', value: `${draw.digit_1} · ${draw.digit_2} · ${draw.digit_3}` },
+            { label: 'digits', value: digits.join(' · ') },
+            ...digitRows,
             { label: 'digit_sum', value: draw.digit_sum },
             { label: 'digit_root', value: draw.digit_root },
             { label: 'draw_datetime_local', value: draw.draw_datetime_local },
@@ -128,11 +140,7 @@ export default async function DrawDetailPage({ params }: PageProps) {
             />
             <KeyValueBlock
               title="Vedic Planets"
-              rows={[
-                { label: 'digit_1_vedic_planet', value: features.digit_1_vedic_planet },
-                { label: 'digit_2_vedic_planet', value: features.digit_2_vedic_planet },
-                { label: 'digit_3_vedic_planet', value: features.digit_3_vedic_planet },
-              ]}
+              rows={vedicRows}
             />
             <KeyValueBlock
               title="Astrology"

@@ -1,7 +1,7 @@
 import { getAdminDb } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { serializeDoc } from '../readers/pilotConstants';
-import { hintHit } from './forecastConstants';
+import { hintHit, parseCandidateHint } from './forecastConstants';
 import type { HitType, HypothesisContribution, OutcomeSummary } from './forecastRunTypes';
 
 export interface ResolveForecastParams {
@@ -25,26 +25,19 @@ function isBoxHit(candidateHints: string[], digits: string[]): boolean {
   // Collect all positional digit expectations from candidates
   const pos_digits: Map<number, string[]> = new Map();
   for (const hint of candidateHints) {
-    if (hint.startsWith('pos1:')) {
-      const existing = pos_digits.get(1) ?? [];
-      existing.push(hint.slice(5));
-      pos_digits.set(1, existing);
-    } else if (hint.startsWith('pos2:')) {
-      const existing = pos_digits.get(2) ?? [];
-      existing.push(hint.slice(5));
-      pos_digits.set(2, existing);
-    } else if (hint.startsWith('pos3:')) {
-      const existing = pos_digits.get(3) ?? [];
-      existing.push(hint.slice(5));
-      pos_digits.set(3, existing);
-    }
+    const parsed = parseCandidateHint(hint);
+    if (parsed?.type !== 'positional' || parsed.position === undefined) continue;
+    const existing = pos_digits.get(parsed.position) ?? [];
+    existing.push(String(parsed.value));
+    pos_digits.set(parsed.position, existing);
   }
   if (pos_digits.size === 0) return false;
 
-  // Check if any permutation of the expected digits matches the actual digits
+  // Readiness only: require a full-length positional set so a future pos4 hint
+  // cannot be dropped while scoring a 4-digit result.
   const expected_digits = Array.from(pos_digits.values()).flat();
+  if (expected_digits.length !== digits.length) return false;
   const actual = [...digits];
-  // Sort both and compare
   return expected_digits.sort().join('') === actual.sort().join('');
 }
 

@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getAdminDb } from '@/lib/firebase/admin';
+import { PILOT_DATE_FROM, PILOT_DATE_TO, PILOT_GAME_ID, PILOT_JURISDICTION_ID } from '@/lib/fourPillars/readers/pilotConstants';
 
 export async function GET() {
   try {
     const db = getAdminDb();
-    const GAME_ID = 'ny_pick3';
-    const DATE_FROM = '2024-01-01';
-    const DATE_TO = '2024-01-31';
 
     const [
       jurSnap,
@@ -18,42 +16,42 @@ export async function GET() {
       evidenceCount,
       forecastCount,
     ] = await Promise.all([
-      db.collection('jurisdictions').doc('ny').get(),
-      db.collection('games').doc(GAME_ID).get(),
+      db.collection('jurisdictions').doc(PILOT_JURISDICTION_ID).get(),
+      db.collection('games').doc(PILOT_GAME_ID).get(),
       db
         .collection('draws')
-        .where('game_id', '==', GAME_ID)
-        .where('draw_date', '>=', DATE_FROM)
-        .where('draw_date', '<=', DATE_TO)
+        .where('game_id', '==', PILOT_GAME_ID)
+        .where('draw_date', '>=', PILOT_DATE_FROM)
+        .where('draw_date', '<=', PILOT_DATE_TO)
         .count()
         .get(),
       db
         .collection('celestial_overlays')
-        .where('game_id', '==', GAME_ID)
-        .where('draw_date', '>=', DATE_FROM)
-        .where('draw_date', '<=', DATE_TO)
+        .where('game_id', '==', PILOT_GAME_ID)
+        .where('draw_date', '>=', PILOT_DATE_FROM)
+        .where('draw_date', '<=', PILOT_DATE_TO)
         .count()
         .get(),
       db
         .collection('draw_symbolic_features')
-        .where('game_id', '==', GAME_ID)
-        .where('draw_date', '>=', DATE_FROM)
-        .where('draw_date', '<=', DATE_TO)
+        .where('game_id', '==', PILOT_GAME_ID)
+        .where('draw_date', '>=', PILOT_DATE_FROM)
+        .where('draw_date', '<=', PILOT_DATE_TO)
         .count()
         .get(),
       db
         .collection('hypothesis_registry')
-        .where('game_ids', 'array-contains', GAME_ID)
+        .where('game_ids', 'array-contains', PILOT_GAME_ID)
         .count()
         .get(),
       db
         .collection('evidence_tracker')
-        .where('game_id', '==', GAME_ID)
+        .where('game_id', '==', PILOT_GAME_ID)
         .count()
         .get(),
       db
         .collection('forecast_runs')
-        .where('game_id', '==', GAME_ID)
+        .where('game_id', '==', PILOT_GAME_ID)
         .count()
         .get(),
     ]);
@@ -61,9 +59,9 @@ export async function GET() {
     return NextResponse.json({
       ok: true,
       pilot_scope: {
-        game_id: GAME_ID,
-        date_from: DATE_FROM,
-        date_to: DATE_TO,
+        game_id: PILOT_GAME_ID,
+        date_from: PILOT_DATE_FROM,
+        date_to: PILOT_DATE_TO,
       },
       status: {
         jurisdiction_seeded: jurSnap.exists,

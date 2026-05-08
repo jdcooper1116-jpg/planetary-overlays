@@ -1,6 +1,11 @@
 import { getAdminDb } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
-import { PILOT_GAME_ID, serializeDoc } from '../readers/pilotConstants';
+import {
+  PILOT_DRAW_LABELS,
+  PILOT_GAME_ID,
+  PILOT_JURISDICTION_ID,
+  serializeDoc,
+} from '../readers/pilotConstants';
 import { meetsPromotionThresholds } from './scoring';
 import { RULE_VERSION } from '../constants/versions';
 
@@ -17,6 +22,14 @@ export interface PromotionResult {
   errors: number;
   promoted_ids: string[];
   rejected_ids: string[];
+}
+
+function stringArrayOrFallback(value: unknown, fallback: readonly string[]): string[] {
+  if (Array.isArray(value)) {
+    const values = value.filter((item): item is string => typeof item === 'string' && item.length > 0);
+    if (values.length > 0) return values;
+  }
+  return [...fallback];
 }
 
 export async function runPromotionEngine(): Promise<PromotionResult> {
@@ -93,6 +106,12 @@ export async function runPromotionEngine(): Promise<PromotionResult> {
           const regSnap = await regRef.get();
 
           if (!regSnap.exists) {
+            const gameIds = stringArrayOrFallback(cand.game_ids, [String(cand.game_id ?? PILOT_GAME_ID)]);
+            const jurisdictionIds = stringArrayOrFallback(cand.jurisdiction_ids, [
+              String(cand.jurisdiction_id ?? PILOT_JURISDICTION_ID),
+            ]);
+            const drawLabels = stringArrayOrFallback(cand.draw_labels, PILOT_DRAW_LABELS);
+
             await regRef.set({
               hypothesis_id: registry_id,
               source: 'auto_observation',
@@ -102,9 +121,9 @@ export async function runPromotionEngine(): Promise<PromotionResult> {
               description: cand.description,
               system_family: `auto_${String(cand.pattern_family)}`,
               system_name: cand.pattern_family,
-              jurisdiction_ids: ['ny'],
-              game_ids: [PILOT_GAME_ID],
-              draw_labels: ['midday', 'evening'],
+              jurisdiction_ids: jurisdictionIds,
+              game_ids: gameIds,
+              draw_labels: drawLabels,
               trigger_logic: cand.trigger_logic,
               expected_logic: cand.expected_logic,
               rule_version: RULE_VERSION,

@@ -1,8 +1,9 @@
 import { getAdminDb } from '@/lib/firebase/admin';
 import { PILOT_GAME_ID, serializeDoc } from './pilotConstants';
-
-const MIN_TRIGGER_FIRED = 3;
-const MIN_SUPPORT_RATE = 0.60;
+import {
+  FORECAST_MIN_SUPPORT_RATE,
+  FORECAST_MIN_TRIGGER_FIRED,
+} from '@/lib/fourPillars/phase5/forecastConstants';
 
 export interface HypothesisCheckResult {
   hypothesis_id: string;
@@ -78,12 +79,12 @@ export async function buildForecastDebugReport(forecastId?: string): Promise<For
     let passed_threshold = true;
     let threshold_failure_reason: string | null = null;
 
-    if (trigger_fired_count < MIN_TRIGGER_FIRED) {
+    if (trigger_fired_count < FORECAST_MIN_TRIGGER_FIRED) {
       passed_threshold = false;
-      threshold_failure_reason = `Only ${trigger_fired_count} trigger-fired draws (need ≥${MIN_TRIGGER_FIRED})`;
-    } else if (support_rate_on_fired === null || support_rate_on_fired < MIN_SUPPORT_RATE) {
+      threshold_failure_reason = `Only ${trigger_fired_count} trigger-fired draws (need ≥${FORECAST_MIN_TRIGGER_FIRED})`;
+    } else if (support_rate_on_fired === null || support_rate_on_fired < FORECAST_MIN_SUPPORT_RATE) {
       passed_threshold = false;
-      threshold_failure_reason = `Support rate ${support_rate_on_fired !== null ? Math.round(support_rate_on_fired * 100) + '%' : 'N/A'} (need ≥${Math.round(MIN_SUPPORT_RATE * 100)}%)`;
+      threshold_failure_reason = `Support rate ${support_rate_on_fired !== null ? Math.round(support_rate_on_fired * 100) + '%' : 'N/A'} (need ≥${Math.round(FORECAST_MIN_SUPPORT_RATE * 100)}%)`;
     }
 
     // Did it trigger for the target context?

@@ -1,5 +1,5 @@
 import { getAdminDb } from '@/lib/firebase/admin';
-import { serializeDoc } from './pilotConstants';
+import { PILOT_GAME_ID, serializeDoc } from './pilotConstants';
 
 export interface ObservationFilter {
   family?: string;
@@ -11,7 +11,7 @@ export async function readObservations(filter: ObservationFilter = {}) {
 
   const snap = await db
     .collection('observation_log')
-    .where('game_id', '==', 'ny_pick3')
+    .where('game_id', '==', PILOT_GAME_ID)
     .get();
 
   let docs = snap.docs.map((d) => serializeDoc(d.data()));

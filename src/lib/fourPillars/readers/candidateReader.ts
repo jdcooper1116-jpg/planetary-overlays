@@ -1,5 +1,5 @@
 import { getAdminDb } from '@/lib/firebase/admin';
-import { serializeDoc } from './pilotConstants';
+import { PILOT_GAME_ID, serializeDoc } from './pilotConstants';
 
 export type CandidateDoc = Record<string, unknown> & {
   id: string;
@@ -17,7 +17,7 @@ export async function readCandidates(filter: CandidateFilter = {}): Promise<Cand
 
   const snap = await db
     .collection('auto_hypothesis_queue')
-    .where('game_id', '==', 'ny_pick3')
+    .where('game_id', '==', PILOT_GAME_ID)
     .get();
 
   let docs: CandidateDoc[] = snap.docs.map((d) => ({
@@ -82,7 +82,7 @@ export async function readCandidateById(candidateId: string): Promise<CandidateD
   // 3. Final fallback: scan pilot docs and match any common identifier
   const allSnap = await db
     .collection('auto_hypothesis_queue')
-    .where('game_id', '==', 'ny_pick3')
+    .where('game_id', '==', PILOT_GAME_ID)
     .get();
 
   for (const d of allSnap.docs) {

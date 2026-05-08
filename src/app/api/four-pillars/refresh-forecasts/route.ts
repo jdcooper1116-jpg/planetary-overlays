@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { refreshForecasts } from '@/lib/fourPillars/forecast/forecastEngine';
+import { PILOT_GAME_ID, PILOT_JURISDICTION_ID } from '@/lib/fourPillars/readers/pilotConstants';
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,8 +22,8 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await refreshForecasts({
-      game_id: body.game_id ?? 'ny_pick3',
-      jurisdiction_id: body.jurisdiction_id ?? 'ny',
+      game_id: body.game_id ?? PILOT_GAME_ID,
+      jurisdiction_id: body.jurisdiction_id ?? PILOT_JURISDICTION_ID,
       target_draw_date: body.target_draw_date,
       target_draw_label: body.target_draw_label,
       target_draw_time_utc: body.target_draw_time_utc,

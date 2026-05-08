@@ -1,19 +1,26 @@
 import { getAdminDb } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { SCHEDULE_VERSION } from '../constants/versions';
+import {
+  PILOT_DATE_FROM,
+  PILOT_ENGINE_GAME,
+  PILOT_GAME_ID,
+  PILOT_JURISDICTION_ID,
+  PILOT_STATE,
+} from '../readers/pilotConstants';
 
 // ─── Jurisdiction: New York ───────────────────────────────────────────────────
 
 export const NY_JURISDICTION = {
-  jurisdiction_id: 'ny',
+  jurisdiction_id: PILOT_JURISDICTION_ID,
   name: 'New York',
-  abbreviation: 'NY',
+  abbreviation: PILOT_STATE,
   country_code: 'US',
   timezone: 'America/New_York',
   is_active: true,
   supports_pick3: true,
   supports_pick4: true,
-  engine_state_code: 'NY',
+  engine_state_code: PILOT_STATE,
   research_priority: 1,
   notes: 'Phase 1 pilot jurisdiction',
 };
@@ -21,9 +28,9 @@ export const NY_JURISDICTION = {
 // ─── Game: ny_pick3 ───────────────────────────────────────────────────────────
 
 export const NY_PICK3_GAME = {
-  game_id: 'ny_pick3',
-  jurisdiction_id: 'ny',
-  game_type: 'pick3',
+  game_id: PILOT_GAME_ID,
+  jurisdiction_id: PILOT_JURISDICTION_ID,
+  game_type: PILOT_ENGINE_GAME,
   display_name: 'New York Pick 3',
   ball_count: 3,
   ball_range_min: 0,
@@ -33,8 +40,8 @@ export const NY_PICK3_GAME = {
   is_active: true,
   notes: 'NY Numbers game (Midday + Evening). Midday ~12:20, Evening ~22:30 local.',
   draw_schedule: [
-    { draw_label: 'midday', draw_time_local: '12:20', days: 'daily', effective_from: '2024-01-01' },
-    { draw_label: 'evening', draw_time_local: '22:30', days: 'daily', effective_from: '2024-01-01' },
+    { draw_label: 'midday', draw_time_local: '12:20', days: 'daily', effective_from: PILOT_DATE_FROM },
+    { draw_label: 'evening', draw_time_local: '22:30', days: 'daily', effective_from: PILOT_DATE_FROM },
   ],
 };
 

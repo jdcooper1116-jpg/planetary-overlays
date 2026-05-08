@@ -7,6 +7,8 @@ import {
   PILOT_GAME_ID,
   PILOT_JURISDICTION_ID,
   PILOT_STATE,
+  NY_PICK4_ENGINE_GAME,
+  NY_PICK4_GAME_ID,
 } from '../readers/pilotConstants';
 
 // ─── Jurisdiction: New York ───────────────────────────────────────────────────
@@ -45,11 +47,32 @@ export const NY_PICK3_GAME = {
   ],
 };
 
+// ─── Game: ny_pick4 ───────────────────────────────────────────────────────────
+
+export const NY_PICK4_GAME = {
+  game_id: NY_PICK4_GAME_ID,
+  jurisdiction_id: PILOT_JURISDICTION_ID,
+  game_type: NY_PICK4_ENGINE_GAME,
+  display_name: 'New York Pick 4',
+  ball_count: 4,
+  ball_range_min: 0,
+  ball_range_max: 9,
+  preserves_order: true,
+  schedule_version: SCHEDULE_VERSION,
+  is_active: true,
+  notes: 'NY Win 4 game (Midday + Evening). Midday ~12:20, Evening ~22:30 local.',
+  draw_schedule: [
+    { draw_label: 'midday', draw_time_local: '12:20', days: 'daily', effective_from: PILOT_DATE_FROM },
+    { draw_label: 'evening', draw_time_local: '22:30', days: 'daily', effective_from: PILOT_DATE_FROM },
+  ],
+};
+
 // ─── Writer ───────────────────────────────────────────────────────────────────
 
 export async function seedJurisdictionAndGame(): Promise<{
   jurisdictionWritten: boolean;
   gameWritten: boolean;
+  gamesWritten: Record<string, boolean>;
 }> {
   const db = getAdminDb();
   const now = FieldValue.serverTimestamp();
@@ -63,13 +86,21 @@ export async function seedJurisdictionAndGame(): Promise<{
     await jurRef.update({ updated_at: now });
   }
 
-  const gameRef = db.collection('games').doc(NY_PICK3_GAME.game_id);
-  const gameSnap = await gameRef.get();
-  if (!gameSnap.exists) {
-    await gameRef.set({ ...NY_PICK3_GAME, created_at: now, updated_at: now });
-  } else {
-    await gameRef.update({ updated_at: now });
+  const gamesWritten: Record<string, boolean> = {};
+  for (const game of [NY_PICK3_GAME, NY_PICK4_GAME]) {
+    const gameRef = db.collection('games').doc(game.game_id);
+    const gameSnap = await gameRef.get();
+    if (!gameSnap.exists) {
+      await gameRef.set({ ...game, created_at: now, updated_at: now });
+    } else {
+      await gameRef.update({ updated_at: now });
+    }
+    gamesWritten[game.game_id] = !gameSnap.exists;
   }
 
-  return { jurisdictionWritten: !jurSnap.exists, gameWritten: !gameSnap.exists };
+  return {
+    jurisdictionWritten: !jurSnap.exists,
+    gameWritten: gamesWritten[NY_PICK3_GAME.game_id],
+    gamesWritten,
+  };
 }

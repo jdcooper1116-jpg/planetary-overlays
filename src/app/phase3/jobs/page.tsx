@@ -1,5 +1,12 @@
 import JobRunnerCard from '@/components/phase3/JobRunnerCard';
 import { readRecentJobs } from '@/lib/fourPillars/readers/forecastDebugReader';
+import {
+  NY_PICK4_ENGINE_GAME,
+  NY_PICK4_GAME_ID,
+  PILOT_DATE_FROM,
+  PILOT_DATE_TO,
+  PILOT_STATE,
+} from '@/lib/fourPillars/readers/pilotConstants';
 
 type JobCard = {
   title: string;
@@ -58,6 +65,49 @@ const JOBS: JobCard[] = [
   },
 ];
 
+const NY_PICK4_PILOT_BODY = {
+  game_id: NY_PICK4_GAME_ID,
+  game: NY_PICK4_ENGINE_GAME,
+  state: PILOT_STATE,
+  date_from: PILOT_DATE_FROM,
+  date_to: PILOT_DATE_TO,
+};
+
+const PICK4_JOBS: JobCard[] = [
+  {
+    title: 'Sync NY Pick 4 Pilot Draws',
+    description: 'Internal Phase 6C pilot only. Mirrors NY Pick 4 Jan 2024 from the canonical Railway lottery-engine.',
+    endpoint: '/api/four-pillars/sync-draws',
+    body: NY_PICK4_PILOT_BODY,
+    color: 'cyan',
+    order: 'P4 Step 1',
+  },
+  {
+    title: 'Build NY Pick 4 Overlays',
+    description: 'Computes celestial overlays for mirrored NY Pick 4 Jan 2024 draws.',
+    endpoint: '/api/four-pillars/jobs/run-build-overlays',
+    body: NY_PICK4_PILOT_BODY,
+    color: 'indigo',
+    order: 'P4 Step 2',
+  },
+  {
+    title: 'Build NY Pick 4 Symbolic Features',
+    description: 'Builds symbolic features for NY Pick 4 Jan 2024 draws after overlays exist.',
+    endpoint: '/api/four-pillars/jobs/run-build-features',
+    body: NY_PICK4_PILOT_BODY,
+    color: 'violet',
+    order: 'P4 Step 3',
+  },
+  {
+    title: 'Run NY Pick 4 Backtest',
+    description: 'Runs evidence backtest for hypotheses explicitly scoped to ny_pick4. Expected to be empty until Pick 4 hypotheses exist.',
+    endpoint: '/api/four-pillars/jobs/run-backtest',
+    body: NY_PICK4_PILOT_BODY,
+    color: 'amber',
+    order: 'P4 Step 4',
+  },
+];
+
 export default async function JobsPage() {
   const recentJobs = await readRecentJobs(15);
 
@@ -99,6 +149,30 @@ export default async function JobsPage() {
             />
           </div>
         ))}
+      </div>
+
+      <div className="mb-10">
+        <div className="mb-4">
+          <div className="text-sm font-semibold text-gray-300 mb-1">Internal NY Pick 4 Pilot</div>
+          <p className="text-xs text-gray-600 font-mono">
+            Phase 6C controlled lane: NY only, Jan 2024 only, explicit body overrides only.
+          </p>
+        </div>
+        <div className="space-y-4">
+          {PICK4_JOBS.map((j) => (
+            <div key={`${j.endpoint}-${j.order}`}>
+              <div className="text-xs text-gray-600 font-mono mb-1.5">{j.order}</div>
+              <JobRunnerCard
+                title={j.title}
+                description={j.description}
+                endpoint={j.endpoint}
+                body={j.body}
+                color={j.color}
+                order={j.order}
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
       <div>

@@ -1,4 +1,5 @@
 import { SYMBOLIC_VERSION, OVERLAY_VERSION, MIRROR_VERSION } from '../constants/versions';
+import { getDigitsFromDraw } from '../digits/digitHelpers';
 
 const WEEKDAY_NAMES = [
   'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
@@ -73,11 +74,13 @@ export interface SymbolicFeatureRow {
   digit_1: string | null;
   digit_2: string | null;
   digit_3: string | null;
+  digit_4: string | null;
   result_padded: string;
   // Vedic
   digit_1_vedic_planet: string | null;
   digit_2_vedic_planet: string | null;
   digit_3_vedic_planet: string | null;
+  digit_4_vedic_planet: string | null;
   // Mod / structural flags
   digit_sum_mod3: number;
   digit_sum_mod9: number;
@@ -106,12 +109,14 @@ export function computeSymbolicFeatures(
   const digit_1 = draw.digit_1 as string | null;
   const digit_2 = draw.digit_2 as string | null;
   const digit_3 = draw.digit_3 as string | null;
+  const digit_4 = draw.digit_4 as string | null;
   const result_padded = draw.result_padded as string;
   const digit_sum = draw.digit_sum as number;
   const digit_root = draw.digit_root as number;
-  const numbers = [digit_1, digit_2, digit_3].filter(Boolean) as string[];
+  const numbers = getDigitsFromDraw(draw);
 
-  // Double / triple detection
+  // Readiness only: count all mirrored digits so later Pick 4 records do not
+  // silently behave like Pick 3. This does not activate Pick 4 ingestion.
   const freqs: Record<string, number> = {};
   for (const d of numbers) freqs[d] = (freqs[d] ?? 0) + 1;
   const freqVals = Object.values(freqs);
@@ -147,11 +152,13 @@ export function computeSymbolicFeatures(
     digit_1,
     digit_2,
     digit_3,
+    digit_4,
     result_padded,
     // Vedic
     digit_1_vedic_planet: digit_1 ? getVedicPlanet(digit_1) : null,
     digit_2_vedic_planet: digit_2 ? getVedicPlanet(digit_2) : null,
     digit_3_vedic_planet: digit_3 ? getVedicPlanet(digit_3) : null,
+    digit_4_vedic_planet: digit_4 ? getVedicPlanet(digit_4) : null,
     // Mod / flags
     digit_sum_mod3: digit_sum % 3,
     digit_sum_mod9: digit_sum % 9,

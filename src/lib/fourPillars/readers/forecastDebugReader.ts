@@ -97,9 +97,7 @@ export async function buildForecastDebugReport(forecastId?: string): Promise<For
       for (const [key, value] of Object.entries(expected)) {
         if (key === 'digit_root') candidate_contributions.push(`digit_root:${value}`);
         else if (key === 'digit_root_in') candidate_contributions.push(`digit_root_in:[${(value as number[]).join(',')}]`);
-        else if (key === 'digit_1') candidate_contributions.push(`pos1:${value}`);
-        else if (key === 'digit_2') candidate_contributions.push(`pos2:${value}`);
-        else if (key === 'digit_3') candidate_contributions.push(`pos3:${value}`);
+        else if (/^digit_[1-9]\d*$/.test(key)) candidate_contributions.push(`pos${key.slice(6)}:${value}`);
         else if (key === 'digit_sum_gte') candidate_contributions.push(`digit_sum_gte:${value}`);
         else if (key === 'digit_sum_lte') candidate_contributions.push(`digit_sum_lte:${value}`);
         else if (key === 'is_double') candidate_contributions.push('structure:double');

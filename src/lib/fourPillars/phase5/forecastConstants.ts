@@ -26,15 +26,16 @@ export function buildForecastId(
   return `fp5_${safe(gameId)}_${drawDate}_${drawLabel}`;
 }
 
-// Candidate hint parsers — e.g. "pos3:8" → { position: 3, digit: '8' }
+// Candidate hint parsers — e.g. "pos4:8" → { position: 4, digit: '8' }
 export function parseCandidateHint(hint: string): {
   type: 'positional' | 'digit_root' | 'digit_sum_gte' | 'digit_sum_lte' | 'structure';
   position?: number;
   value: string | number;
 } | null {
-  if (hint.startsWith('pos1:')) return { type: 'positional', position: 1, value: hint.slice(5) };
-  if (hint.startsWith('pos2:')) return { type: 'positional', position: 2, value: hint.slice(5) };
-  if (hint.startsWith('pos3:')) return { type: 'positional', position: 3, value: hint.slice(5) };
+  const positional = /^pos([1-9]\d*):(.+)$/.exec(hint);
+  if (positional) {
+    return { type: 'positional', position: Number(positional[1]), value: positional[2] };
+  }
   if (hint.startsWith('digit_root:')) return { type: 'digit_root', value: parseInt(hint.slice(11), 10) };
   if (hint.startsWith('digit_sum_gte:')) return { type: 'digit_sum_gte', value: parseInt(hint.slice(14), 10) };
   if (hint.startsWith('digit_sum_lte:')) return { type: 'digit_sum_lte', value: parseInt(hint.slice(14), 10) };
@@ -86,7 +87,9 @@ export function hintHit(
         return Object.values(freq).some((c) => c === 2) && !Object.values(freq).some((c) => c === 3);
       }
       if (v === 'triple') {
-        return digits[0] === digits[1] && digits[1] === digits[2];
+        const freq: Record<string, number> = {};
+        digits.forEach((d) => { freq[d] = (freq[d] ?? 0) + 1; });
+        return Object.values(freq).some((c) => c === 3);
       }
       return false;
     }

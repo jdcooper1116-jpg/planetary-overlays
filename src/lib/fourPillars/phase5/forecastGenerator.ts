@@ -62,7 +62,7 @@ export async function generateForecastRun(
     draw_label,
     draw_datetime_utc: params.target_draw_time_utc,
     // Digits unknown — forecast context only
-    digit_1: null, digit_2: null, digit_3: null,
+    digit_1: null, digit_2: null, digit_3: null, digit_4: null,
     digit_sum: 0, digit_root: 0,
     result_padded: '???', numbers: [],
   };
@@ -169,9 +169,7 @@ export async function generateForecastRun(
           let hint: string | null = null;
           if (key === 'digit_root') hint = `digit_root:${value}`;
           else if (key === 'digit_root_in') hint = `digit_root_in:${JSON.stringify(value)}`;
-          else if (key === 'digit_1') hint = `pos1:${value}`;
-          else if (key === 'digit_2') hint = `pos2:${value}`;
-          else if (key === 'digit_3') hint = `pos3:${value}`;
+          else if (/^digit_[1-9]\d*$/.test(key)) hint = `pos${key.slice(6)}:${value}`;
           else if (key === 'digit_sum_gte') hint = `digit_sum_gte:${value}`;
           else if (key === 'digit_sum_lte') hint = `digit_sum_lte:${value}`;
           else if (key === 'is_double' && value === true) hint = 'structure:double';

@@ -1,20 +1,27 @@
 import { getAdminDb } from '@/lib/firebase/admin';
-import { PILOT_GAME_ID, PILOT_DATE_FROM, PILOT_DATE_TO, serializeDoc } from './pilotConstants';
+import {
+  PILOT_DATE_FROM,
+  PILOT_DATE_TO,
+  resolveControlledPilotGameConfig,
+  serializeDoc,
+} from './pilotConstants';
 
 const OVERLAY_VERSION = '1.0.0';
 const SYMBOLIC_VERSION = '1.0.0';
 
 export interface DrawsFilter {
+  game_id?: string;
   date?: string;
   label?: string;
 }
 
 export async function readDraws(filter: DrawsFilter = {}): Promise<Record<string, unknown>[]> {
   const db = getAdminDb();
+  const pilotGame = resolveControlledPilotGameConfig({ game_id: filter.game_id });
 
   const snap = await db
     .collection('draws')
-    .where('game_id', '==', PILOT_GAME_ID)
+    .where('game_id', '==', pilotGame.game_id)
     .where('draw_date', '>=', PILOT_DATE_FROM)
     .where('draw_date', '<=', PILOT_DATE_TO)
     .orderBy('draw_date', 'desc')

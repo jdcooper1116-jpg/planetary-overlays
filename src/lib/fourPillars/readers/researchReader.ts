@@ -1,8 +1,8 @@
 import { getAdminDb } from '@/lib/firebase/admin';
 import {
-  PILOT_GAME_ID,
   PILOT_DATE_FROM,
   PILOT_DATE_TO,
+  resolveControlledPilotGameConfig,
   serializeDoc,
 } from './pilotConstants';
 
@@ -12,6 +12,7 @@ const SYMBOLIC_VERSION = '1.0.0';
 // ── Draw search with richer filters ──────────────────────────────────────────
 
 export interface DrawSearchFilter {
+  game_id?: string;
   date?: string;
   label?: string;
   result_contains?: string;   // substring match on result_padded
@@ -22,10 +23,11 @@ export interface DrawSearchFilter {
 
 export async function searchDraws(filter: DrawSearchFilter = {}): Promise<Record<string, unknown>[]> {
   const db = getAdminDb();
+  const pilotGame = resolveControlledPilotGameConfig({ game_id: filter.game_id });
 
   const snap = await db
     .collection('draws')
-    .where('game_id', '==', PILOT_GAME_ID)
+    .where('game_id', '==', pilotGame.game_id)
     .where('draw_date', '>=', PILOT_DATE_FROM)
     .where('draw_date', '<=', PILOT_DATE_TO)
     .orderBy('draw_date', 'desc')
@@ -82,15 +84,19 @@ export interface HypothesisDetail {
   };
 }
 
-export async function readHypothesisDetail(hypothesisId: string): Promise<HypothesisDetail | null> {
+export async function readHypothesisDetail(
+  hypothesisId: string,
+  gameId?: string
+): Promise<HypothesisDetail | null> {
   const db = getAdminDb();
+  const pilotGame = resolveControlledPilotGameConfig({ game_id: gameId });
 
   const [hypSnap, evidenceSnap] = await Promise.all([
     db.collection('hypothesis_registry').doc(hypothesisId).get(),
     db
       .collection('evidence_tracker')
       .where('hypothesis_id', '==', hypothesisId)
-      .where('game_id', '==', PILOT_GAME_ID)
+      .where('game_id', '==', pilotGame.game_id)
       .orderBy('draw_date', 'desc')
       .get(),
   ]);
@@ -141,6 +147,7 @@ export async function readHypothesisDetail(hypothesisId: string): Promise<Hypoth
 // ── Feature search with richer filters ────────────────────────────────────────
 
 export interface FeatureSearchFilter {
+  game_id?: string;
   date?: string;
   label?: string;
   weekday?: string;
@@ -157,10 +164,11 @@ export interface FeatureSearchFilter {
 
 export async function searchFeatures(filter: FeatureSearchFilter = {}): Promise<Record<string, unknown>[]> {
   const db = getAdminDb();
+  const pilotGame = resolveControlledPilotGameConfig({ game_id: filter.game_id });
 
   const snap = await db
     .collection('draw_symbolic_features')
-    .where('game_id', '==', PILOT_GAME_ID)
+    .where('game_id', '==', pilotGame.game_id)
     .where('draw_date', '>=', PILOT_DATE_FROM)
     .where('draw_date', '<=', PILOT_DATE_TO)
     .orderBy('draw_date', 'desc')
@@ -188,6 +196,7 @@ export async function searchFeatures(filter: FeatureSearchFilter = {}): Promise<
 // ── Evidence search with richer filters ───────────────────────────────────────
 
 export interface EvidenceSearchFilter {
+  game_id?: string;
   hypothesis_id?: string;
   result?: string;
   label?: string;
@@ -197,10 +206,11 @@ export interface EvidenceSearchFilter {
 
 export async function searchEvidence(filter: EvidenceSearchFilter = {}): Promise<Record<string, unknown>[]> {
   const db = getAdminDb();
+  const pilotGame = resolveControlledPilotGameConfig({ game_id: filter.game_id });
 
   let q = db
     .collection('evidence_tracker')
-    .where('game_id', '==', PILOT_GAME_ID)
+    .where('game_id', '==', pilotGame.game_id)
     .orderBy('draw_date', 'desc');
 
   const snap = await q.get();
@@ -220,6 +230,7 @@ export async function searchEvidence(filter: EvidenceSearchFilter = {}): Promise
 // ── Overlay search with richer filters ────────────────────────────────────────
 
 export interface OverlaySearchFilter {
+  game_id?: string;
   date?: string;
   label?: string;
   moon_sign?: string;
@@ -230,10 +241,11 @@ export interface OverlaySearchFilter {
 
 export async function searchOverlays(filter: OverlaySearchFilter = {}): Promise<Record<string, unknown>[]> {
   const db = getAdminDb();
+  const pilotGame = resolveControlledPilotGameConfig({ game_id: filter.game_id });
 
   const snap = await db
     .collection('celestial_overlays')
-    .where('game_id', '==', PILOT_GAME_ID)
+    .where('game_id', '==', pilotGame.game_id)
     .where('draw_date', '>=', PILOT_DATE_FROM)
     .where('draw_date', '<=', PILOT_DATE_TO)
     .orderBy('draw_date', 'desc')

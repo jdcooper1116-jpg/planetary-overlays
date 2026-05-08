@@ -34,6 +34,15 @@ const NAV_GROUPS = [
       { href: '/phase4/validation-runs', label: '📈 Validation Runs' },
     ],
   },
+  {
+    label: 'Phase 5',
+    items: [
+      { href: '/phase5/forecasts', label: '📡 Forecast Runs' },
+      { href: '/phase5/outcomes', label: '🎰 Outcomes' },
+      { href: '/phase5/hypothesis-performance', label: '📊 Hyp. Performance' },
+      { href: '/phase5/experiments', label: '🧬 Experiments' },
+    ],
+  },
 ];
 
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
@@ -85,7 +94,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         <div className="px-4 py-4 border-t border-gray-800 text-xs text-gray-700 font-mono leading-relaxed">
           planetary-overlays
           <br />
-          p2·p3·p4·p4.5
+          p2·p3·p4·p4.5·p5
         </div>
       </aside>
 

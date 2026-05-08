@@ -44,6 +44,12 @@ const NAV_GROUPS = [
       { href: '/phase5/experiments', label: '🧬 Experiments' },
     ],
   },
+  {
+    label: 'Phase 6',
+    items: [
+      { href: '/phase6/dual-game-evidence-plan', label: '🗓 Dual-Game Plan' },
+    ],
+  },
 ];
 
 export default function DashboardShell({ children }: { children: React.ReactNode }) {

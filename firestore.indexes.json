@@ -1,0 +1,183 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "draws",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "game_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "draw_date",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "draw_label",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "draws",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "game_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "draw_date",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "draw_label",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "celestial_overlays",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "game_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "draw_date",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "draw_label",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "draw_symbolic_features",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "game_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "draw_date",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "draw_label",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "evidence_tracker",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "game_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "draw_date",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "hypothesis_id",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "evidence_tracker",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "hypothesis_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "game_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "draw_date",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "evidence_tracker",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "draw_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "hypothesis_id",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "forecast_runs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "game_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "generated_at",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "forecast_runs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "game_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "target_draw_date",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "hypothesis_registry",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "game_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "hypothesis_id",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "auto_hypothesis_queue",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "game_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "lift",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

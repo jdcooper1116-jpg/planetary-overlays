@@ -25,3 +25,8 @@ firebase deploy --only firestore:indexes
 Do not deploy indexes until the Firebase project and CLI target are confirmed.
 
 If Firebase returns a missing-index error, use the generated console link to create the exact index, then mirror it into `firestore.indexes.json`.
+
+
+## Phase 6F reconciliation
+
+Live Firestore indexes were exported from the four-pillars-lottery-system project using npx firebase-tools firestore:indexes and mirrored into firestore.indexes.json so future index deploys do not prompt to delete existing project indexes.

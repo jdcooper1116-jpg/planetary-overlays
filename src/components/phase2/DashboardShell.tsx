@@ -48,6 +48,7 @@ const NAV_GROUPS = [
     label: 'Phase 6',
     items: [
       { href: '/phase6/dual-game-evidence-plan', label: '🗓 Dual-Game Plan' },
+      { href: '/phase6/dual-game-evidence-comparison', label: '📊 Evidence Compare' },
     ],
   },
 ];

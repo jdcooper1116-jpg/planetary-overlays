@@ -5,6 +5,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const draws = await readDraws({
+      game_id: searchParams.get('game_id') ?? undefined,
       date: searchParams.get('date') ?? undefined,
       label: searchParams.get('label') ?? undefined,
     });

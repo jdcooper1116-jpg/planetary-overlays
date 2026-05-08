@@ -5,6 +5,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const overlays = await readOverlays({
+      game_id: searchParams.get('game_id') ?? undefined,
       date: searchParams.get('date') ?? undefined,
       label: searchParams.get('label') ?? undefined,
       moon_sign: searchParams.get('moon_sign') ?? undefined,

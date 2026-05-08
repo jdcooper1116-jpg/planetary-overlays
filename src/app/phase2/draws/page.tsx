@@ -2,6 +2,11 @@ import { readDraws } from '@/lib/fourPillars/readers/drawsReader';
 import DrawTable from '@/components/phase2/DrawTable';
 import FilterBar from '@/components/phase2/FilterBar';
 import { Suspense } from 'react';
+import {
+  CONTROLLED_PILOT_GAME_IDS,
+  PILOT_GAME_ID,
+  resolveControlledPilotGameConfig,
+} from '@/lib/fourPillars/readers/pilotConstants';
 
 export const revalidate = 30;
 
@@ -13,6 +18,7 @@ const PILOT_DATES = Array.from({ length: 31 }, (_, i) => {
 
 interface PageProps {
   searchParams: Promise<{
+    game_id?: string;
     date?: string;
     label?: string;
   }>;
@@ -20,7 +26,9 @@ interface PageProps {
 
 export default async function DrawsPage({ searchParams }: PageProps) {
   const sp = await searchParams;
+  const pilotGame = resolveControlledPilotGameConfig({ game_id: sp.game_id });
   const draws = await readDraws({
+    game_id: sp.game_id,
     date: sp.date,
     label: sp.label,
   });
@@ -30,8 +38,11 @@ export default async function DrawsPage({ searchParams }: PageProps) {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-100 mb-1">Mirrored Draws</h1>
         <p className="text-sm text-gray-500">
-          NY Pick 3 · January 2024 ·{' '}
+          {pilotGame.display_name} · January 2024 ·{' '}
           <span className="text-gray-300">{draws.length} draws</span>
+          {pilotGame.game_id !== PILOT_GAME_ID && (
+            <span className="ml-2 text-cyan-400 font-mono">controlled audit lane</span>
+          )}
         </p>
       </div>
 
@@ -40,6 +51,12 @@ export default async function DrawsPage({ searchParams }: PageProps) {
         <Suspense fallback={<div className="h-8" />}>
           <FilterBar
             fields={[
+              {
+                key: 'game_id',
+                label: 'Game',
+                options: [...CONTROLLED_PILOT_GAME_IDS],
+                placeholder: 'NY Pick 3 default',
+              },
               { key: 'date', label: 'Date', options: PILOT_DATES, placeholder: 'All dates' },
               { key: 'label', label: 'Label', options: ['midday', 'evening', 'night'], placeholder: 'All labels' },
             ]}

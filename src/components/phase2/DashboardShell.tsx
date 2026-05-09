@@ -58,6 +58,7 @@ const NAV_GROUPS = [
       { href: '/phase7/railway-research-architecture', label: 'Railway Architecture' },
       { href: '/phase7/engine-schema-contract', label: 'Engine Schema Contract' },
       { href: '/phase7/engine-api-contract', label: 'Engine API Contract' },
+      { href: '/phase7/app-shell-adapter-contract', label: 'App-Shell Adapter Contract' },
     ],
   },
 ];

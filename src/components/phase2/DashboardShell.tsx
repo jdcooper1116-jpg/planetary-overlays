@@ -52,6 +52,12 @@ const NAV_GROUPS = [
       { href: '/phase6/hypothesis-refinement-plan', label: '🧭 Refinement Plan' },
     ],
   },
+  {
+    label: 'Phase 7',
+    items: [
+      { href: '/phase7/railway-research-architecture', label: 'Railway Architecture' },
+    ],
+  },
 ];
 
 export default function DashboardShell({ children }: { children: React.ReactNode }) {

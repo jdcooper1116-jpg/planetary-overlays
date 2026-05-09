@@ -49,6 +49,7 @@ const NAV_GROUPS = [
     items: [
       { href: '/phase6/dual-game-evidence-plan', label: '🗓 Dual-Game Plan' },
       { href: '/phase6/dual-game-evidence-comparison', label: '📊 Evidence Compare' },
+      { href: '/phase6/hypothesis-refinement-plan', label: '🧭 Refinement Plan' },
     ],
   },
 ];
